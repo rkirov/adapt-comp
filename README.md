@@ -2,12 +2,13 @@
 
 *This is a toy! Do not use in real projects!*
 
-This is a JS/TS reimplementation of the Haskell library [2] described in the
-paper [1]. Of course, TypeScript does not support monads (higher-kinded types
-needed), nor do-notation, so a number of compromises were made in the
-conversion. The Haskell library was in turn inspired by earlier ML
-implementation [3], but I have not looked into that code. Also the Haskell
-improvements (removing explicit writes) do seem desirable.
+This is a JS/TS reimplementation of the [Haskell library][2] described in the
+paper [Monads for Incremental Computations][1] by Magnus Carlsson. Of course,
+TypeScript does not support monads (higher-kinded types needed), nor
+do-notation, so a number of compromises were made in the conversion. The 
+Haskell library was in turn inspired by earlier ML [implementation][3], but I
+have not looked into that code. Also the Haskell improvements (removing
+explicit writes) do seem desirable.
 
 It has mostly been a fun exercise and a learning aid to understand the ideas
 behind the adaptive computation literature.
@@ -49,7 +50,7 @@ Notice that the update logic is almost as complicated as the original
 "derive" if from the original computation, no matter what the computation was.
 
 This is what "adaptive computation" tries to achieve. Some languages like
-Lustre[7] tackle the problem. Here instead we attempt to solve it by using a
+[Lustre][7] tackle the problem. Here instead we attempt to solve it by using a
 library.
 
 ## How to use 
@@ -176,13 +177,14 @@ The original Haskell implementation has at least four different monads. I have
 removed all, but one - Changable and replaced the rest with simple mutable
 operations.
 
-As observed in [1] the Changable monad is nothing more than the continuation
-monad with some callback caching based on causality ordering. A nice gentle
-intro to the continuation monad can be found in Dan Piponi's blog [4],[5].
+As observed in [the Carlsson paper][1] the Changable monad is nothing more than
+the continuation monad with some callback caching based on causality ordering.
+A nice gentle intro to the continuation monad can be found in Dan Piponi's blog
+[here][4],[and here][5].
 
-The original Haskell implementation uses a data structure by Deitz and Sleator
-[6], which I skipped implementing and instead used a trivial replacement (which
-would likely fail to scale).
+The original Haskell implementation uses a data structure [by Deitz and
+Sleator][6], which I skipped implementing and instead used a trivial
+replacement (which would likely fail to scale).
 
 ## Syntax sugar
 
@@ -216,10 +218,10 @@ See examples/ directory for non-trivial adaptive algorithm examples.
 
 ## Next Steps
 
-- fix the adaptive quick sort failing test.
-- implement the real OrderedList data structure from [6].
-- add support for pluggable equality checking.
-- add more examples of non-trivial algorithms that can be turned adaptive.
+- [ ] fix the adaptive quick sort failing test.
+- [ ] implement the real OrderedList data structure from [6][].
+- [ ] add support for pluggable equality checking.
+- [ ] add more examples of non-trivial algorithms that can be turned adaptive.
 
 ## Open Quesions
 
@@ -240,10 +242,14 @@ Run `tsc -w` and `jest --watchAll` in two different terminals.
 
 ## References
 
-[1] Magnus Carlsson. Monads for Incremental Computing. https://www.researchgate.net/publication/2858472_Monads_for_Incremental_Computing_-_Functional_Pearl
-[2] http://hackage.haskell.org/package/Adaptive
-[3] U. Acar, G. Blelloch, and R. Harper. Adaptive functional programming. In Principles of Programming Languages (POPL02), Portland, Oregon, January 2002. ACM. https://www.cs.cmu.edu/~rwh/papers/afp/popl02.ps
-[4] https://dpiponi.github.io/cont.html
-[5] http://blog.sigfpe.com/2008/12/mother-of-all-monads.html
-[6] P.F.Dietz and D.D.Sleator. Two algorithms for mainitaining order in a list. In Proceedings. 19th ACM Symposium. Theory of Computing, 1987.
-[7] https://en.wikipedia.org/wiki/Lustre_(programming_language)
+1. Magnus Carlsson. Monads for Incremental Computing. ICFP '02 Proceedings of the seventh ACM SIGPLAN international conference on Functional programming [link][1]
+1. U. Acar, G. Blelloch, and R. Harper. Adaptive functional programming. In Principles of Programming Languages (POPL02), Portland, Oregon, January 2002. ACM. [link][3]
+1. P.F.Dietz and D.D.Sleator. Two algorithms for mainitaining order in a list. In Proceedings. 19th ACM Symposium. Theory of Computing, 1987. [link][6]
+
+[1]: https://www.researchgate.net/publication/2858472_Monads_for_Incremental_Computing_-_Functional_Pearl
+[2]: http://hackage.haskell.org/package/Adaptive
+[3]: https://www.cs.cmu.edu/~rwh/papers/afp/popl02.ps
+[4]: https://dpiponi.github.io/cont.html
+[5]: http://blog.sigfpe.com/2008/12/mother-of-all-monads.html
+[6]: https://www.cs.cmu.edu/~sleator/papers/maintaining-order.pdf 
+[7]: https://en.wikipedia.org/wiki/Lustre_(programming_language)
