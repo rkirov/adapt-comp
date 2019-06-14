@@ -9,7 +9,7 @@ export type Time = Entry<null>;
  * that started and ended at the given times.
  */
 export interface Edge {
-  reader: Changable<void>, start: Time, end: Time,
+  reader: () => void, start: Time, end: Time,
 }
 
 /**
@@ -61,10 +61,7 @@ export class Adaptive {
       if (this.ol.deleted(e.start)) continue;
       this.ol.spliceOut(e.start, e.end);
       this.currentTime = e.start;
-      // Still trying to get my head around this one.
-      // I guess empty continuation is ok, because reader
-      // has captured the meaningful one.
-      e.reader(() => {});
+      const v: void = e.reader();
     }
     this.currentTime = now;
   }
@@ -83,7 +80,7 @@ export class Adaptive {
     return (ct2: (s: S) => void) => {
       const start = this.stepTime();
       const reader = () => {
-        ct(m.get())(ct2);
+        const v: void = ct(m.get())(ct2);
         m.edges.push({reader, start, end: this.currentTime});
       };
       reader();
