@@ -16,7 +16,9 @@ export interface Entry<T> {
  */
 export class OrderedList<T> {
 
-  base: Entry<T> = {data: null, stamp: 0, next: this.base, prev: this.base, deleted: false};
+  // 'as any' needed to break cyclic construction,
+  // after the constructor the lie disappears.
+  base: Entry<T> = {data: null, stamp: 0, next: undefined as any, prev: undefined as any, deleted: false};
 
   constructor() {
     // At this point 'base' actually has 'undefined' for prev and next.
