@@ -4,7 +4,8 @@
   "description": "Implementation of Monads for Incremental Computing",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "author": "rkirov@gmail.com",
   "license": "MIT",
