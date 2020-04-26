@@ -1,6 +1,26 @@
 import {Adaptive, constant, Modifiable} from '../adaptive';
 
-import {AList, aqsort} from './aqsort';
+import {AList, aqsort, afilter} from './aqsort';
+
+test('adaptive filter filters', () => {
+  const a = new Adaptive();
+  const mid = a.newMod(constant({
+    value: 1,
+    tail: a.newMod(constant({value: 3, tail: a.newMod(constant(null))}))
+  })) as Modifiable<AList>;
+  const list = a.newMod(constant({value: 2, tail: mid})) as Modifiable<AList>;
+
+  const res = afilter(a, (x) => x < 2, list);
+
+  expect(res.get()!.value).toBe(1);
+  expect(res.get()!.tail.get()!).toBe(null);
+
+  // modification
+  a.change(mid, null);
+  a.propagate();
+
+  expect(res.get()!).toBe(null);
+});
 
 test('Adaptive quick sort does sort', () => {
   const a = new Adaptive();

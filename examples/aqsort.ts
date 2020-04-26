@@ -17,7 +17,7 @@ export type AList = Cons|null;
  * Creates a new list from the elements for lmod that return true from the cmp
  * function.
  */
-function afilter(
+export function afilter(
     a: Adaptive, cmp: (x: number) => boolean,
     lmod: Modifiable<AList>): Modifiable<AList> {
   return a.newMod(a.readMod(lmod, (l) => {
