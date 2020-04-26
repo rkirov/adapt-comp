@@ -22,10 +22,10 @@ export function afilter(
     lmod: Modifiable<AList>): Modifiable<AList> {
   return a.newMod(a.readMod(lmod, (l) => {
     if (l === null) return constant(null);
-    const mod = cmp(l.value) ?
-          a.newMod(constant({value: l.value, tail: afilter(a, cmp, l.tail)})) as Modifiable<AList> :
-          afilter(a, cmp, l.tail);
-    return a.modToC(mod);
+    if (cmp(l.value)) {
+        return constant({value: l.value, tail: afilter(a, cmp, l.tail)});
+    }
+    return a.modToC(afilter(a, cmp, l.tail));
   }));
 }
 

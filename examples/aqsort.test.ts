@@ -2,11 +2,11 @@ import {Adaptive, constant, Modifiable} from '../adaptive';
 
 import {AList, aqsort, afilter} from './aqsort';
 
-test('adaptive filter filters', () => {
+test.only('adaptive filter filters', () => {
   const a = new Adaptive();
   const mid = a.newMod(constant({
     value: 1,
-    tail: a.newMod(constant({value: 3, tail: a.newMod(constant(null))}))
+    tail: a.newMod(constant(null))
   })) as Modifiable<AList>;
   const list = a.newMod(constant({value: 2, tail: mid})) as Modifiable<AList>;
 
@@ -15,6 +15,7 @@ test('adaptive filter filters', () => {
   expect(res.get()!.value).toBe(1);
   expect(res.get()!.tail.get()!).toBe(null);
 
+  console.log('mod');
   // modification
   a.change(mid, null);
   a.propagate();
@@ -58,7 +59,6 @@ test('Adaptive quick sort does adapt to changes', () => {
   a.change(mid, {value: 5, tail: a.newMod<AList>(constant(null))});
   a.propagate();
 
-  // TODO: This is broken, seems that time stamps are off.
-  // expect(sortedList.get()!.value).toBe(2);
-  // expect(sortedList.get()!.tail.get()!.value).toBe(5);
+  expect(sortedList.get()!.value).toBe(2);
+  expect(sortedList.get()!.tail.get()!.value).toBe(5);
 });

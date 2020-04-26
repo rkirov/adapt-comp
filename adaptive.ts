@@ -38,15 +38,17 @@ export class Adaptive {
 
   newMod<T>(ch: Changable<T>): Modifiable<T> {
     const now = this.stepTime();
-    const m = new Modifiable((newVal: T) => {
+    const write = (newVal: T) => {
       // TODO: add pluggable comparison check.
-      if (m.get() === newVal) return;
+      if (!m.firstWrite && m.get() === newVal) return;
       m.unsafeSet(newVal);
       this.insertPQ(m.edges);
       m.edges = [];
       this.currentTime = now;
-    });
-    ch((t: T) => m.unsafeSet(t));
+      m.firstWrite = false;
+    };
+    const m = new Modifiable(write)
+    ch(write);
     return m;
   }
 
@@ -96,6 +98,13 @@ export class Modifiable<T> {
    * UnsafeSet will be called before first read, hence using !.
    */
   val!: T;
+  
+  /**
+   * Tracking first write, because during first write there is
+   * no previous value to compare against, so the "not changed"
+   * check has to be turned off.
+   */
+  firstWrite = true;
 
   constructor(readonly write: (newVal: T) => void) {}
   edges: Edge[] = [];
