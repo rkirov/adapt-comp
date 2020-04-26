@@ -66,10 +66,10 @@ creating an Adaptive:
 const a = new Adaptive();
 ```
 
-In an adaptable computation we have `Modifiables` which are like mutable
-variables in programming languages. We can create them using `a.newMod(...)`.
-In the `...` we pass a `Changable`, which is like an expression in our
-programming languages.
+In an adaptable computation we have `Modifiable<T>` which is like mutable
+variables of type `T` in programming languages. We can create them using
+`a.newMod(...)`.  In the `...` we pass a `Changable<T>`, which is like an
+expression computing a value of type `T` in familiar programming languages.
 
 The simplest way to produce a `Changable` is to use the `constant` function.
 
@@ -78,12 +78,19 @@ const m1 = a.newMod(constant(1));
 const m2 = a.newMod(constant(2));
 ```
 
+This is the adaptive version of:
+
+```typescript
+const m1 = 1;
+const m2 = 2;
+```
+
 The only other way to produce a `Changable` is to read a `Modifiable` using
 `a.readMod`.  It takes a callback with the current value of the `Modifiable`
 (very similar to a Promise).  At the end of the callback we still have to
 return a `Changable`.
 
-For example, the adaptive version of `m3 = m1 + 2` will be.
+For example, the adaptive version of `m3 = m1 + 2` will be:
 ```typescript
 const m3 = a.newMod(a.readMod(m1, x => constant(x + 2))); 
 ```
@@ -98,6 +105,14 @@ const m3 = a.newMod(a.readMod(m1, x => a.readMod(m2, y => constant(x + y)));
 Simply reading a Modifiable to produce a Changable can be a bit awkward -
 `a.readMod(m, x => constant(x))`. To safe some typing we added `a.modToC(m)`
 which is just sugar for that same operation.
+
+To summarize the main types here:
+
+| Adaptive Type | Classical analog     |
+|---------------|----------------------|
+| Modifable<T>  | Variable of type T   |
+| Changable<T>  | Computation resulting in value of type T   |
+| Adaptive      | Context              |
 
 At any point the result of the computation can be obtained with
 `Modifiable.get()`.  Note, that this access is not considered "adaptive" and
@@ -218,7 +233,6 @@ See examples/ directory for non-trivial adaptive algorithm examples.
 
 ## Next Steps
 
-- [ ] fix the adaptive quick sort failing test.
 - [ ] implement the real OrderedList data structure from [6][].
 - [ ] add support for pluggable equality checking.
 - [ ] add more examples of non-trivial algorithms that can be turned adaptive.
