@@ -2,7 +2,7 @@ import {Adaptive, constant, Modifiable} from '../adaptive';
 
 import {AList, aqsort, afilter} from './aqsort';
 
-test.only('adaptive filter filters', () => {
+test('adaptive filter filters', () => {
   const a = new Adaptive();
   const mid = a.newMod(constant({
     value: 1,
@@ -15,7 +15,6 @@ test.only('adaptive filter filters', () => {
   expect(res.get()!.value).toBe(1);
   expect(res.get()!.tail.get()!).toBe(null);
 
-  console.log('mod');
   // modification
   a.change(mid, null);
   a.propagate();
