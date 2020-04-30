@@ -129,7 +129,7 @@ export class Modifiable<T> {
  * Nothing more than the continuation monad, with Result type being void (all
  * side-effects).
  */
-type Changable<T> = (ct: ((t: T) => void)) => void;
+export type Changable<T> = (ct: ((t: T) => void)) => void;
 
 /**
  * This would be 'return' in haskell parlance, but it looks odd without
