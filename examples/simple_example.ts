@@ -35,5 +35,5 @@ const res2 = f(x2, y2);
 console.log(res2.get());  // returns 55;
 
 // re-computation
-write(y2, 10);
+write(y2, 100);
 console.log(res2.get());  // returns 155;

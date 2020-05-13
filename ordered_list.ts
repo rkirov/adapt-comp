@@ -11,10 +11,12 @@ export interface Entry<T> {
 }
 
 /**
- * Inefficient implementation of the OrderedList interface from Sleator and
+ * Implementation of the OrderedList interface from Sleator and
  * Dietz paper https://www.cs.cmu.edu/~sleator/papers/maintaining-order.pdf
  */
 export class OrderedList<T> {
+
+  M = 1 << 29;
 
   // 'as any' needed to break cyclic construction,
   // after the constructor the lie disappears.
@@ -27,16 +29,31 @@ export class OrderedList<T> {
     this.base.next = this.base;
   }
 
-  insertEntryAfter(data: T, after: Entry<T>) {
-    let stamp: number;
-    if (after.next.stamp > after.stamp) {
-      stamp = (after.stamp + after.next.stamp) / 2;
-      if (stamp === after.stamp || stamp === after.next.stamp) {
-        throw new Error(`percision exceeded in the naive OrderedList implemenation`);
-      }
-    } else {
-      stamp = after.stamp + 1;
+  relabel(start: Entry<T>) {
+    let j = 0;
+    let end = start;
+    while ((end.stamp - start.stamp) <= j * j && end !== this.base) {
+      end = end.next;
+      j += 1;
     }
+    const w = end.stamp - start.stamp;
+    let k = 0;
+    let cur = start;
+    while (k !== j) {
+      cur.stamp = Math.floor(w * k / j) + start.stamp;
+      cur = cur.next;
+      k += 1;
+    }
+  }
+
+  insertEntryAfter(data: T, after: Entry<T>) {
+    // no spot left, we need to relabel.
+    if (after.stamp + 1 === after.next.stamp) {
+      this.relabel(after);
+    }
+    
+    const nextStamp = after.next === this.base ? this.M : after.next.stamp;
+    const stamp = Math.floor((after.stamp + nextStamp) / 2);
     const entry = {data, stamp, next: after.next, prev: after, deleted: false};
     after.next = entry;
     return entry;
