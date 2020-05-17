@@ -3,7 +3,7 @@
  * the original haskell library.
  */
 export interface Entry<T> {
-  data: T | null,  // only base should have null data
+  data: T | null; // only base should have null data
   stamp: number;
   next: Entry<T>;
   prev: Entry<T>;
@@ -15,12 +15,17 @@ export interface Entry<T> {
  * Dietz paper https://www.cs.cmu.edu/~sleator/papers/maintaining-order.pdf
  */
 export class OrderedList<T> {
-
   M = 1 << 29;
 
   // 'as any' needed to break cyclic construction,
   // after the constructor the lie disappears.
-  base: Entry<T> = {data: null, stamp: 0, next: undefined as any, prev: undefined as any, deleted: false};
+  base: Entry<T> = {
+    data: null,
+    stamp: 0,
+    next: undefined as any,
+    prev: undefined as any,
+    deleted: false,
+  };
 
   constructor() {
     // At this point 'base' actually has 'undefined' for prev and next.
@@ -32,7 +37,7 @@ export class OrderedList<T> {
   relabel(start: Entry<T>) {
     let j = 0;
     let end = start;
-    while ((end.stamp - start.stamp) <= j * j && end !== this.base) {
+    while (end.stamp - start.stamp <= j * j && end !== this.base) {
       end = end.next;
       j += 1;
     }
@@ -40,7 +45,7 @@ export class OrderedList<T> {
     let k = 0;
     let cur = start;
     while (k !== j) {
-      cur.stamp = Math.floor(w * k / j) + start.stamp;
+      cur.stamp = Math.floor((w * k) / j) + start.stamp;
       cur = cur.next;
       k += 1;
     }
@@ -51,18 +56,22 @@ export class OrderedList<T> {
     if (after.stamp + 1 === after.next.stamp) {
       this.relabel(after);
     }
-    
+
     const nextStamp = after.next === this.base ? this.M : after.next.stamp;
     const stamp = Math.floor((after.stamp + nextStamp) / 2);
-    const entry = {data, stamp, next: after.next, prev: after, deleted: false};
+    const entry = {
+      data,
+      stamp,
+      next: after.next,
+      prev: after,
+      deleted: false,
+    };
     after.next = entry;
     return entry;
   }
 
   order(x: Entry<T>, y: Entry<T>): -1 | 0 | 1 {
-    return x.stamp < y.stamp ? 1 : (
-      x.stamp === y.stamp ? 0 : -1
-    );
+    return x.stamp < y.stamp ? 1 : x.stamp === y.stamp ? 0 : -1;
   }
 
   delete(x: Entry<T>) {

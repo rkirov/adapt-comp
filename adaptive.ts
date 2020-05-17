@@ -3,13 +3,14 @@ import {PriorityQueue} from './pq';
 
 export type Time = Entry<null>;
 
-
 /**
  * Represents a partial computation that is captured in the Changable reader
  * that started and ended at the given times.
  */
 export interface Edge {
-  reader: () => void, start: Time, end: Time,
+  reader: () => void;
+  start: Time;
+  end: Time;
 }
 
 /**
@@ -19,8 +20,9 @@ export interface Edge {
 export class Adaptive {
   ol = new OrderedList<null>();
 
-  pq = new PriorityQueue<Edge>(
-      (x: Edge, y: Edge) => this.ol.order(x.start, y.start));
+  pq = new PriorityQueue<Edge>((x: Edge, y: Edge) =>
+    this.ol.order(x.start, y.start)
+  );
   currentTime = this.ol.base;
 
   stepTime() {
@@ -47,7 +49,7 @@ export class Adaptive {
       this.currentTime = now;
       m.firstWrite = false;
     };
-    const m = new Modifiable(write)
+    const m = new Modifiable(write);
     ch(write);
     return m;
   }
@@ -72,7 +74,7 @@ export class Adaptive {
    * Converts a Modifable to a Changable.
    */
   modToC<T>(mod: Modifiable<T>): Changable<T> {
-    return this.readMod(mod, (x) => constant(x));
+    return this.readMod(mod, x => constant(x));
   }
 
   /**
@@ -86,7 +88,7 @@ export class Adaptive {
         m.edges.push({reader, start, end: this.currentTime});
       };
       reader();
-    }
+    };
   }
 }
 
@@ -98,7 +100,7 @@ export class Modifiable<T> {
    * UnsafeSet will be called before first read, hence using !.
    */
   val!: T;
-  
+
   /**
    * Tracking first write, because during first write there is
    * no previous value to compare against, so the "not changed"
@@ -125,16 +127,16 @@ export class Modifiable<T> {
 
 /**
  * This is type for the "expressions" which produce Modifiables.
- * 
+ *
  * Nothing more than the continuation monad, with Result type being void (all
  * side-effects).
  */
-export type Changable<T> = (ct: ((t: T) => void)) => void;
+export type Changable<T> = (ct: (t: T) => void) => void;
 
 /**
  * This would be 'return' in haskell parlance, but it looks odd without
  * do-notation in JS, so it is renamed to 'constant'.
  */
 export function constant<T>(val: T): Changable<T> {
-  return (ct) => ct(val);
+  return ct => ct(val);
 }

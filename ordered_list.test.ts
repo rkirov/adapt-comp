@@ -24,7 +24,7 @@ test('ordered list should support simple deletion', () => {
   const c1 = ol.insertEntryAfter(null, ol.base);
   const c2 = ol.insertEntryAfter(null, c1);
   const c3 = ol.insertEntryAfter(null, c2);
-  
+
   expect(ol.deleted(c1)).toBe(false);
   expect(ol.deleted(c2)).toBe(false);
 
@@ -42,7 +42,7 @@ test('ordered list should support splice deletion', () => {
   const c1 = ol.insertEntryAfter(null, ol.base);
   const c2 = ol.insertEntryAfter(null, c1);
   const c3 = ol.insertEntryAfter(null, c2);
-  
+
   expect(ol.deleted(c2)).toBe(false);
   expect(ol.deleted(c3)).toBe(false);
 

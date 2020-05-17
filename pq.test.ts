@@ -1,6 +1,6 @@
 import {PriorityQueue} from './pq';
 
-const numCmp = (x: number, y: number) => y > x ? 1 : (x === y ? 0 : -1);
+const numCmp = (x: number, y: number) => (y > x ? 1 : x === y ? 0 : -1);
 
 test('priority queue supports inserts', () => {
   const pq = new PriorityQueue(numCmp);

@@ -16,7 +16,7 @@ export class PriorityQueue<T> {
       const temp = this.arr[parent];
       this.arr[parent] = this.arr[idx];
       this.arr[idx] = temp;
-      idx = parent; 
+      idx = parent;
     }
   }
 
@@ -40,21 +40,21 @@ export class PriorityQueue<T> {
     let idx = 0;
     while (true) {
       const left = 2 * idx;
-      const right = left + 1; 
+      const right = left + 1;
       if (left < this.arr.length && this.arr[left] < this.arr[idx]) {
         const temp = this.arr[left];
         this.arr[left] = this.arr[idx];
         this.arr[idx] = temp;
         idx = left;
         continue;
-      } 
+      }
       if (right < this.arr.length && this.arr[right] < this.arr[idx]) {
         const temp = this.arr[right];
         this.arr[right] = this.arr[idx];
         this.arr[idx] = temp;
         idx = right;
         continue;
-      } 
+      }
       break;
     }
   }

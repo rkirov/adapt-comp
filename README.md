@@ -1,11 +1,11 @@
 # Adaptive (Self-Adjusting) Computations in JS
 
-*This is a toy! Do not use in real projects!*
+_This is a toy! Do not use in real projects!_
 
 This is a JS/TS reimplementation of the [Haskell library][2] described in the
 paper [Monads for Incremental Computations][1] by Magnus Carlsson. Of course,
 TypeScript does not support monads (higher-kinded types needed), nor
-do-notation, so a number of compromises were made in the conversion. The 
+do-notation, so a number of compromises were made in the conversion. The
 Haskell library was in turn inspired by earlier ML [implementation][3], but I
 have not looked into that code. Also the Haskell improvements (removing
 explicit writes) do seem desirable.
@@ -16,7 +16,7 @@ behind the adaptive computation literature.
 ## What is Adaptive Computation?
 
 In the programming languages we use today computations are single-usage. We
-build a data structure, pass it to an algorithm, and receive the result. If at 
+build a data structure, pass it to an algorithm, and receive the result. If at
 later point of time the data structure changes, the algorithm has to be rerun
 from scratch.
 
@@ -40,8 +40,13 @@ support mutations together with an appropriate change to the result. In the
 example above, this can be done by:
 
 ```typescript
-function changeInputAtIdx(orignalArr: number[], idx: number, newVal: number, oldResult: number) {
-  return oldResult - (originalArr[idx] * originalArr[idx]) + newVal * newVal;
+function changeInputAtIdx(
+  orignalArr: number[],
+  idx: number,
+  newVal: number,
+  oldResult: number
+) {
+  return oldResult - originalArr[idx] * originalArr[idx] + newVal * newVal;
 }
 ```
 
@@ -53,7 +58,7 @@ This is what "adaptive computation" tries to achieve. Some languages like
 [Lustre][7] tackle the problem. Here instead we attempt to solve it by using a
 library.
 
-## How to use 
+## How to use
 
 The library is structured around three main classes - `Adaptive`, `Changable`
 and `Modifable`.
@@ -68,7 +73,7 @@ const a = new Adaptive();
 
 In an adaptable computation we have `Modifiable<T>` which is like mutable
 variables of type `T` in programming languages. We can create them using
-`a.newMod(...)`.  In the `...` we pass a `Changable<T>`, which is like an
+`a.newMod(...)`. In the `...` we pass a `Changable<T>`, which is like an
 expression computing a value of type `T` in familiar programming languages.
 
 The simplest way to produce a `Changable` is to use the `constant` function.
@@ -86,20 +91,21 @@ const m2 = 2;
 ```
 
 The only other way to produce a `Changable` is to read a `Modifiable` using
-`a.readMod`.  It takes a callback with the current value of the `Modifiable`
-(very similar to a Promise).  At the end of the callback we still have to
+`a.readMod`. It takes a callback with the current value of the `Modifiable`
+(very similar to a Promise). At the end of the callback we still have to
 return a `Changable`.
 
 For example, the adaptive version of `m3 = m1 + 2` will be:
+
 ```typescript
-const m3 = a.newMod(a.readMod(m1, x => constant(x + 2))); 
+const m3 = a.newMod(a.readMod(m1, x => constant(x + 2)));
 ```
 
 And with chaining we can write more complicated expressions like the adaptive
 version of `m3 = m1 + m2`.
 
 ```typescript
-const m3 = a.newMod(a.readMod(m1, x => a.readMod(m2, y => constant(x + y))); 
+const m3 = a.newMod(a.readMod(m1, x => a.readMod(m2, y => constant(x + y)));
 ```
 
 Simply reading a Modifiable to produce a Changable can be a bit awkward -
@@ -108,30 +114,29 @@ which is just sugar for that same operation.
 
 To summarize the main types here:
 
-| Adaptive Type | Classical analog     |
-|---------------|----------------------|
-| Modifable<T>  | Variable of type T   |
-| Changable<T>  | Computation resulting in value of type T   |
-| Adaptive      | Context              |
+| Adaptive Type | Classical analog                         |
+| ------------- | ---------------------------------------- |
+| Modifable<T>  | Variable of type T                       |
+| Changable<T>  | Computation resulting in value of type T |
+| Adaptive      | Context                                  |
 
 At any point the result of the computation can be obtained with
-`Modifiable.get()`.  Note, that this access is not considered "adaptive" and
+`Modifiable.get()`. Note, that this access is not considered "adaptive" and
 should be done only outside `Changable` expressions. Inside `Changable` one has
 to use `readMod`.
 
 ```typescript
-console.log(m1.get(), m2.get(), m3.get()); // 1, 2, 3 
+console.log(m1.get(), m2.get(), m3.get()); // 1, 2, 3
 ```
 
-Finally, we can change the value of any modifiable using `a.change(Modifiable,
-newValue)`.  Once we change all modifiables we would like, all affected
+Finally, we can change the value of any modifiable using `a.change(Modifiable, newValue)`. Once we change all modifiables we would like, all affected
 computations will be rerun with `a.propagate()`. Notice we don't need to spell
 out what will be affected.
 
 ```typescript
 a.changeMod(m1, 10);
 a.propagate();
-console.log(m3.get());  // 12
+console.log(m3.get()); // 12
 ```
 
 Note that one should not use `a.change` inside Changable expressions.
@@ -145,9 +150,11 @@ produce the other ones. This mechanism is dynamic, which means that it can
 change from one execution to another.
 
 ```typescript
-const switchMod = a.newMod(a.readMod(booleanMod, b => {
+const switchMod = a.newMod(
+  a.readMod(booleanMod, b => {
     return b ? a.readMod(modTrue, x => x + 1) : a.readMod(modFalse, x => x + 2);
-  }));
+  })
+);
 ```
 
 In this example, the dynamic dependency graph will track which one of `modTrue`
@@ -166,7 +173,7 @@ const result = a.newMod(a.readMod(aMod, a => {
   return a.readMod(bMod, b => {
     const intermed2 = b * 2;
     return constant(intermed1 + intermed2);
-  }) 
+  })
 });
 ```
 
@@ -209,7 +216,7 @@ it look like writing regular imperative code with adapt/read keywords.
 
 ```typescript
 
-const result = adapt with a { return (read a2Mod) + (read b2Mod); } 
+const result = adapt with a { return (read a2Mod) + (read b2Mod); }
 // transpiles to
 const result = a.newMod(a.readMod(a2Mod, a2 => a.readMod(b2Mod, b2 => constant(a2 + b2))));
 ```
@@ -245,7 +252,7 @@ See examples/ directory for non-trivial adaptive algorithm examples.
 - Are the runtime performance and memory consumption of this acceptable?
 - What runtime checks should be added to get back some of the guarantees that
   the Haskell implentation had using monads?
-- API design needs work 
+- API design needs work
   - Should Adaptive be global and not explicitly invoked?
   - Can Modifable/Changle distinction be removed? It is awkward to use modToC.
 - what happens when adaptable computations throw.
@@ -265,5 +272,5 @@ Run `tsc -w` and `jest --watchAll` in two different terminals.
 [3]: https://www.cs.cmu.edu/~rwh/papers/afp/popl02.ps
 [4]: https://dpiponi.github.io/cont.html
 [5]: http://blog.sigfpe.com/2008/12/mother-of-all-monads.html
-[6]: https://www.cs.cmu.edu/~sleator/papers/maintaining-order.pdf 
+[6]: https://www.cs.cmu.edu/~sleator/papers/maintaining-order.pdf
 [7]: https://en.wikipedia.org/wiki/Lustre_(programming_language)

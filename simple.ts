@@ -1,6 +1,6 @@
 /**
  * This file provides simpler API to adaptive compitation.
- * 
+ *
  * Mostly, using a global Adaptive and four letter words when possible.
  */
 
@@ -16,8 +16,14 @@ export function comp<T>(ch: Changable<T>): Modifiable<T> {
 }
 
 export function read<T>(m: Modifiable<T>): Changable<T>;
-export function read<T, S>(m: Modifiable<T>, ct: (t: T) => Changable<S>): Changable<S>;
-export function read<T, S>(m: Modifiable<T>, ct?: (t: T) => Changable<S>): Changable<S> {
+export function read<T, S>(
+  m: Modifiable<T>,
+  ct: (t: T) => Changable<S>
+): Changable<S>;
+export function read<T, S>(
+  m: Modifiable<T>,
+  ct?: (t: T) => Changable<S>
+): Changable<S> {
   if (!ct) {
     ct = <T>(t: T) => constant(t) as any;
   }

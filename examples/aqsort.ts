@@ -8,15 +8,19 @@ import {IncrList} from '../data';
  * function.
  */
 export function afilter(
-    a: Adaptive, cmp: (x: number) => boolean,
-    lmod: IncrList<number>): IncrList<number> {
-  return a.newMod(a.readMod(lmod, (l) => {
-    if (l === null) return constant(null);
-    if (cmp(l.value)) {
+  a: Adaptive,
+  cmp: (x: number) => boolean,
+  lmod: IncrList<number>
+): IncrList<number> {
+  return a.newMod(
+    a.readMod(lmod, l => {
+      if (l === null) return constant(null);
+      if (cmp(l.value)) {
         return constant({value: l.value, tail: afilter(a, cmp, l.tail)});
-    }
-    return a.modToC(afilter(a, cmp, l.tail));
-  }));
+      }
+      return a.modToC(afilter(a, cmp, l.tail));
+    })
+  );
 }
 
 /**
@@ -29,15 +33,20 @@ export function afilter(
  *     without sorting.
  */
 export function aqsort(
-    a: Adaptive, lmod: IncrList<number>,
-    rest?: IncrList<number>): IncrList<number> {
-  return a.newMod(a.readMod(lmod, (l) => {
-    if (l === null) return rest ? a.modToC(rest) : constant(null);
-    const pivot = l.value;
-    const lessThan = afilter(a, (x) => x < pivot, l.tail);
-    const greaterThan = afilter(a, (x) => x >= pivot, l.tail);
-    const half = a.newMod(constant(
-                     {value: pivot, tail: aqsort(a, greaterThan, rest)})) as IncrList<number>;
-    return a.modToC(aqsort(a, lessThan, half));
-  }));
+  a: Adaptive,
+  lmod: IncrList<number>,
+  rest?: IncrList<number>
+): IncrList<number> {
+  return a.newMod(
+    a.readMod(lmod, l => {
+      if (l === null) return rest ? a.modToC(rest) : constant(null);
+      const pivot = l.value;
+      const lessThan = afilter(a, x => x < pivot, l.tail);
+      const greaterThan = afilter(a, x => x >= pivot, l.tail);
+      const half = a.newMod(
+        constant({value: pivot, tail: aqsort(a, greaterThan, rest)})
+      ) as IncrList<number>;
+      return a.modToC(aqsort(a, lessThan, half));
+    })
+  );
 }
