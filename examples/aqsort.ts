@@ -1,15 +1,5 @@
 import {Adaptive, constant, Modifiable} from '../adaptive';
-
-/**
- * An adaptive list.
- *
- * Standard cons pair, but with a tail wrapped in a Modfiable reference.
- */
-export interface Cons {
-  value: number;
-  tail: Modifiable<AList>;
-}
-export type AList = Cons|null;
+import {IncrList} from '../data';
 
 /**
  * Adaptive filter
@@ -19,7 +9,7 @@ export type AList = Cons|null;
  */
 export function afilter(
     a: Adaptive, cmp: (x: number) => boolean,
-    lmod: Modifiable<AList>): Modifiable<AList> {
+    lmod: IncrList<number>): IncrList<number> {
   return a.newMod(a.readMod(lmod, (l) => {
     if (l === null) return constant(null);
     if (cmp(l.value)) {
@@ -39,16 +29,15 @@ export function afilter(
  *     without sorting.
  */
 export function aqsort(
-    a: Adaptive, lmod: Modifiable<AList>,
-    rest?: Modifiable<AList>): Modifiable<AList> {
+    a: Adaptive, lmod: IncrList<number>,
+    rest?: IncrList<number>): IncrList<number> {
   return a.newMod(a.readMod(lmod, (l) => {
     if (l === null) return rest ? a.modToC(rest) : constant(null);
     const pivot = l.value;
     const lessThan = afilter(a, (x) => x < pivot, l.tail);
     const greaterThan = afilter(a, (x) => x >= pivot, l.tail);
     const half = a.newMod(constant(
-                     {value: pivot, tail: aqsort(a, greaterThan, rest)})) as
-        Modifiable<AList>;
+                     {value: pivot, tail: aqsort(a, greaterThan, rest)})) as IncrList<number>;
     return a.modToC(aqsort(a, lessThan, half));
   }));
 }

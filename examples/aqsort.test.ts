@@ -1,14 +1,16 @@
 import {Adaptive, constant, Modifiable} from '../adaptive';
 
-import {AList, aqsort, afilter} from './aqsort';
+import {aqsort, afilter} from './aqsort';
+import {IncrList} from '../data';
 
 test('adaptive filter filters', () => {
   const a = new Adaptive();
+  // TODO: figure out why 'as' casts are needed.
   const mid = a.newMod(constant({
     value: 1,
-    tail: a.newMod(constant(null))
-  })) as Modifiable<AList>;
-  const list = a.newMod(constant({value: 2, tail: mid})) as Modifiable<AList>;
+    tail: a.newMod(constant(null)) as IncrList<number>
+  })) as IncrList<number>;
+  const list = a.newMod(constant({value: 2, tail: mid})) as IncrList<number>;
 
   const res = afilter(a, (x) => x < 2, list);
 
@@ -29,8 +31,8 @@ test('Adaptive quick sort does sort', () => {
   const mid = a.newMod(constant({
     value: 1,
     tail: a.newMod(constant({value: 3, tail: a.newMod(constant(null))}))
-  })) as Modifiable<AList>;
-  const list = a.newMod(constant({value: 2, tail: mid})) as Modifiable<AList>;
+  })) as IncrList<number>;
+  const list = a.newMod(constant({value: 2, tail: mid})) as IncrList<number>;
 
   const sortedList = aqsort(a, list);
 
@@ -50,12 +52,12 @@ test('Adaptive quick sort does adapt to changes', () => {
   const mid = a.newMod(constant({
     value: 1,
     tail: a.newMod(constant({value: 3, tail: a.newMod(constant(null))}))
-  })) as Modifiable<AList>;
-  const list = a.newMod(constant({value: 2, tail: mid})) as Modifiable<AList>;
+  })) as IncrList<number>;
+  const list = a.newMod(constant({value: 2, tail: mid})) as IncrList<number>;
   const sortedList = aqsort(a, list);
 
   // change the original list.
-  a.change(mid, {value: 5, tail: a.newMod<AList>(constant(null))});
+  a.change(mid, {value: 5, tail: a.newMod(constant(null)) as IncrList<number>});
   a.propagate();
 
   expect(sortedList.get()!.value).toBe(2);
