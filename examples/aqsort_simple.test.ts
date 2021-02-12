@@ -1,7 +1,7 @@
 import {Adaptive, Modifiable} from '../adaptive';
 
 import {aqsort, afilter} from './aqsort_simple';
-import {read, write, comp, pure} from '../simple';
+import {write} from '../simple';
 import {IncrList} from '../data';
 import {makeIncrList, getList, append} from '../simple_lib';
 

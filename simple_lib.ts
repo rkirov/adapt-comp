@@ -2,14 +2,14 @@
  * Higher-order functions to help with using the simple APIs.
  */
 import {comp, pure, read, write} from './simple';
-import {IncrList} from './data';
+import {IncrList, Pair} from './data';
 import {Modifiable} from './adaptive';
 
 export function makeIncrList<T>(arr: T[]): IncrList<T> {
-  if (arr.length == 0) return comp(pure(null)) as IncrList<T>;
+  if (arr.length == 0) return comp(pure(null as Pair<T>|null));
   return comp(
-    pure({value: arr[0], tail: makeIncrList(arr.slice(1))})
-  ) as IncrList<T>;
+    pure({value: arr[0], tail: makeIncrList(arr.slice(1))} as Pair<T>|null)
+  );
 }
 
 export function getList<T>(l: IncrList<T>, acc: T[] = []): T[] {
@@ -21,7 +21,7 @@ export function getList<T>(l: IncrList<T>, acc: T[] = []): T[] {
 
 export function append<T>(v: T, l: IncrList<T>): IncrList<T> {
   // TODO: find out why 'as' assert is needed.
-  return comp(pure({value: v, tail: l})) as IncrList<T>;
+  return comp(pure({value: v, tail: l} as Pair<T>|null));
 }
 
 export function writeAtIdx<T>(l: IncrList<T>, idx: number, v: T): void {
