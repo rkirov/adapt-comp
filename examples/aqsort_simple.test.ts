@@ -3,65 +3,38 @@ import {Adaptive, Modifiable} from '../adaptive';
 import {aqsort, afilter} from './aqsort_simple';
 import {read, write, comp, pure} from '../simple';
 import {IncrList} from '../data';
+import {makeIncrList, getList, append} from '../simple_lib';
 
 test('adaptive filter filters', () => {
-  // TODO: figure out why 'as' casts are needed.
-  const mid = comp(
-    pure({
-      value: 1,
-      tail: comp(pure(null)) as IncrList<number>,
-    })
-  ) as IncrList<number>;
-  const list = comp(pure({value: 2, tail: mid})) as IncrList<number>;
-
+  const mid = makeIncrList([1]);
+  const list = append(2, mid);
   const res = afilter(x => x < 2, list);
 
-  expect(res.get()!.value).toBe(1);
-  expect(res.get()!.tail.get()!).toBe(null);
+  expect(getList(res)).toStrictEqual([1]);
 
   // modification
   write(mid, null);
 
-  expect(res.get()!).toBe(null);
+  expect(res.get()).toBe(null);
 });
 
 test('Adaptive quick sort does sort', () => {
-
-  const mid = comp(
-    pure({
-      value: 1,
-      tail: comp(pure({value: 3, tail: comp(pure(null))})),
-    })
-  ) as IncrList<number>;
-  const list = comp(pure({value: 2, tail: mid})) as IncrList<number>;
+  const list = makeIncrList([2, 1, 3]);
 
   const sortedList = aqsort(list);
 
-  const firstCons = sortedList.get()!;
-  const secondCons = firstCons.tail.get()!;
-  const thirdCons = secondCons.tail.get()!;
-
-  expect(firstCons.value).toBe(1);
-  expect(secondCons.value).toBe(2);
-  expect(thirdCons.value).toBe(3);
+  const plainList = getList(sortedList);
+  expect(plainList).toStrictEqual([1, 2, 3]);
 });
 
 test('Adaptive quick sort does adapt to changes', () => {
-  const mid = comp(
-    pure({
-      value: 1,
-      tail: comp(pure({value: 3, tail: comp(pure(null))})),
-    })
-  ) as IncrList<number>;
-  const list = comp(pure({value: 2, tail: mid})) as IncrList<number>;
+  const mid = makeIncrList([1, 3]);
+  const list = append(2, mid);
   const sortedList = aqsort(list);
 
   // change the original list.
-  write(mid, {
-    value: 5,
-    tail: comp(pure(null)) as IncrList<number>,
-  });
+  write(mid, makeIncrList([5]).get());
 
-  expect(sortedList.get()!.value).toBe(2);
-  expect(sortedList.get()!.tail.get()!.value).toBe(5);
+  const plainList = getList(sortedList);
+  expect(plainList).toStrictEqual([2, 5]);
 });

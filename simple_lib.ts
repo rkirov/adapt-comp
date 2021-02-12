@@ -5,10 +5,10 @@ import {comp, pure, read, write} from './simple';
 import {IncrList} from './data';
 import {Modifiable} from './adaptive';
 
-export function makeIncList<T>(arr: T[]): IncrList<T> {
+export function makeIncrList<T>(arr: T[]): IncrList<T> {
   if (arr.length == 0) return comp(pure(null)) as IncrList<T>;
   return comp(
-    pure({value: arr[0], tail: makeIncList(arr.slice(1))})
+    pure({value: arr[0], tail: makeIncrList(arr.slice(1))})
   ) as IncrList<T>;
 }
 
@@ -17,6 +17,11 @@ export function getList<T>(l: IncrList<T>, acc: T[] = []): T[] {
   if (!pair) return acc;
   acc.push(pair.value);
   return getList(pair.tail, acc);
+}
+
+export function append<T>(v: T, l: IncrList<T>): IncrList<T> {
+  // TODO: find out why 'as' assert is needed.
+  return comp(pure({value: v, tail: l})) as IncrList<T>;
 }
 
 export function writeAtIdx<T>(l: IncrList<T>, idx: number, v: T): void {
