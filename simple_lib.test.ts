@@ -1,4 +1,3 @@
-import {write} from './simple';
 import {getList, map, reduce, writeAtIdx, makeIncrList} from './simple_lib';
 
 test('should convert to and from regular lists', () => {
@@ -22,12 +21,12 @@ test('should update map correctly', () => {
 test('should compute reduce correctly', () => {
   const l = makeIncrList([1, 2, 3]);
   const sum = reduce(l, (x, y) => x + y, 0);
-  expect(sum.get()).toEqual(6);
+  expect(sum.value).toEqual(6);
 });
 
 test('should update reduce correctly', () => {
   const l = makeIncrList([1, 2, 3]);
   const sum = reduce(l, (x, y) => x + y, 0);
   writeAtIdx(l, 1, 0);
-  expect(sum.get()).toEqual(4);
+  expect(sum.value).toEqual(4);
 });

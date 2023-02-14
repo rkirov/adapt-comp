@@ -1,8 +1,7 @@
 import {Adaptive, Modifiable} from '../adaptive';
 
 import {aqsort, afilter} from './aqsort_simple';
-import {write} from '../simple';
-import {IncrList} from '../data';
+import {IncrList} from '../simple_lib';
 import {makeIncrList, getList, append} from '../simple_lib';
 
 test('adaptive filter filters', () => {
@@ -13,9 +12,9 @@ test('adaptive filter filters', () => {
   expect(getList(res)).toStrictEqual([1]);
 
   // modification
-  write(mid, null);
+  mid.value = null;
 
-  expect(res.get()).toBe(null);
+  expect(res.value).toBe(null);
 });
 
 test('Adaptive quick sort does sort', () => {
@@ -33,7 +32,7 @@ test('Adaptive quick sort does adapt to changes', () => {
   const sortedList = aqsort(list);
 
   // change the original list.
-  write(mid, makeIncrList([5]).get());
+  mid.value = makeIncrList([5]).value;
 
   const plainList = getList(sortedList);
   expect(plainList).toStrictEqual([2, 5]);

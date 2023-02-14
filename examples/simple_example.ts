@@ -1,37 +1,47 @@
-import {comp, read, write, pure} from '../simple';
-import {Modifiable} from '../adaptive';
+import {Input, Signal} from '../simple';
 
 // example 1 - distance fn
-const x = comp(pure(1));
-const y = comp(pure(1));
+const x = new Input(1);
+const y = new Input(1);
 
-const op1 = comp(read(x, x => pure(x * x)));
-const op2 = comp(read(y, x => pure(x * x)));
-const op3 = comp(read(op1, x => read(op2, y => pure(x + y))));
-const op4 = comp(read(op3, x => pure(Math.sqrt(x))));
+const op1 = x.read(x => x * x);
+const op2 = y.read(x => x * x);
+const op3 = op1.read(x => op2.read(y => x + y));
+const op4 = op3.read(x => Math.sqrt(x));
 
-console.log(op4.get());
+console.log(op4.value);
 
-write(y, 3);
+y.value = 3;
 
-console.log(op4.get());
+console.log(op4.value);
 
 // example 2 - add up to n
 
 // description
-function f(x: Modifiable<number>, y: Modifiable<number>): Modifiable<number> {
-  const nextX = comp(read(x, x => pure(x - 1)));
-  const nextY = comp(read(x, x => read(y, y => pure(x + y))));
-  const lessZ = comp(read(x, x => pure(x <= 0)));
-  return comp(read(lessZ, b => (b ? read(y) : read(f(nextX, nextY)))));
+function f(x: Signal<number>, y: Signal<number>): Signal<number> {
+  const nextX = x.read(x => x - 1);
+  const nextY = x.read(x => y.read(y => x + y));
+  const lessZ = x.read(x => x <= 0);
+  return lessZ.read(b => (b ? y : f(nextX, nextY)));
 }
-const x2 = comp(pure(10));
-const y2 = comp(pure(0));
+
+// or version 2
+// Which one is better?
+function f2(xS: Signal<number>, yS: Signal<number>): Signal<number> {
+  return xS.read(x => {
+    if (x <= 0) return yS;
+    return f2(xS.read(x => x - 1), yS.read(y => x + y));
+  });
+}
+
+
+const x2 = new Input(10);
+const y2 = new Input(0);
 
 // computation
-const res2 = f(x2, y2);
-console.log(res2.get()); // returns 55;
+const res2 = f2(x2, y2);
+console.log(res2.value); // returns 55;
 
 // re-computation
-write(y2, 100);
-console.log(res2.get()); // returns 155;
+y2.value = 100;
+console.log(res2.value); // returns 155;

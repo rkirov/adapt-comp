@@ -1,40 +1,60 @@
 /**
- * This file provides simpler API to adaptive compitation.
- *
- * Mostly, using a global Adaptive and four letter words when possible.
+ * This file provides simpler API to adaptive compitation, that is
+ * more similar to the one provided by modern JS Reactive libraries.
+ * 
+ * There are only two types:
+ * - `Signal<T>` - a reactive value of type `T` that can be read 
+ *   using the `.value` property to simply get the value or
+ *   using the `.read` method to create a new signal.
+ * - `Input<T>` - a mutable signal of type `T` that can be written to.
+ * 
+ * Under the hood those map to the concepts from 
+ * adaptive computation by using a global Adaptive an 
+ * automatic wrapping of the monadic callback (like `Promise`), to
+ * avoid seeing too many pure calls.
  */
 
-import {Adaptive, Changable, Modifiable, constant} from './adaptive';
+import {Adaptive, Modifiable, constant} from './adaptive';
 
 const GLOBAL_ADAPTIVE = new Adaptive();
 
-/**
- * Comp is short for computation.
- */
-export function comp<T>(ch: Changable<T>): Modifiable<T> {
-  return GLOBAL_ADAPTIVE.newMod(ch);
-}
+export class Signal<T> {
+  protected constructor(protected m: Modifiable<T>) {}
 
-export function read<T>(m: Modifiable<T>): Changable<T>;
-export function read<T, S>(
-  m: Modifiable<T>,
-  ct: (t: T) => Changable<S>
-): Changable<S>;
-export function read<T, S>(
-  m: Modifiable<T>,
-  ct?: (t: T) => Changable<S>
-): Changable<S> {
-  if (!ct) {
-    ct = <T>(t: T) => constant(t) as any;
+  // non-reactive read.
+  // TODO: maybe should throw if called from within a reactive read callback.
+  get value() {
+    return this.m.val;
   }
-  return GLOBAL_ADAPTIVE.readMod(m, ct);
+
+  // reactive read, i.e. producing a new signal
+  // only public way to create new signals.
+  read<S>(read: (t: T) => S|Signal<S>): Signal<S> {
+    let newM = GLOBAL_ADAPTIVE.newMod(
+      GLOBAL_ADAPTIVE.readMod(this.m, (t: T) => {
+        let s = read(t);
+        if (s instanceof Signal) {
+          return GLOBAL_ADAPTIVE.modToC(s.m);
+        }
+        return constant(s);
+      }));
+    return new Signal(newM);
+  }
 }
 
-export function pure<T>(x: T): Changable<T> {
-  return constant(x);
+export class Input<T> extends Signal<T> {
+  constructor(value: T) {
+    super(GLOBAL_ADAPTIVE.newMod(constant(value)));
+  }
+
+  set value(newVal: T) {
+    GLOBAL_ADAPTIVE.change(this.m, newVal);
+    GLOBAL_ADAPTIVE.propagate();
+  }
+
+  get value() {
+    return this.m.val;
+  }
 }
 
-export function write<T>(m: Modifiable<T>, newVal: T) {
-  GLOBAL_ADAPTIVE.change(m, newVal);
-  GLOBAL_ADAPTIVE.propagate();
-}
+// TODO: add batch updates - setting multiple .changes and a single .propagate.
