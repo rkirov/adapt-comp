@@ -58,7 +58,30 @@ This is what "adaptive computation" tries to achieve. Some languages like
 [Lustre][7] tackle the problem. Here instead we attempt to solve it by using a
 library.
 
-## How to use
+## How to use (Simplified API)
+
+To make this library a bit more palatable to JS developers that are used to the 
+current set of reactive libraries, I introduced a simple wrapper and different APIs
+on top of the original ones (see below).
+
+There are only two primitive types:
+- `Signal<T>` - a reactive value of type `T` that can be read 
+   using the `.value` property to simply get the value or
+   using the `.read` method to create a new signal.
+- `Input<T>` - a mutable signal of type `T` that can be written to.
+
+So an incremental (or reactive) computation looks like.
+
+```ts
+const a: Input<number> = new Input(1);
+const b: Input<number> = new Input(2);
+const sum: Signal<number> = a.read(x => b.read(y => x + y)); 
+console.log(sum.value);  // 3
+a.value = 100;  // sum is syncronously updated.
+console.log(sum.value);  // 102
+```
+
+## How to use (Original API)
 
 The library is structured around three main classes - `Adaptive`, `Changable`
 and `Modifable`.
@@ -240,9 +263,11 @@ See examples/ directory for non-trivial adaptive algorithm examples.
 
 ## Next Steps
 
-- [ ] implement the real OrderedList data structure from [6][].
 - [ ] add support for pluggable equality checking.
+- [ ] add "demand-driven" propagation, i.e. if I am reading signal X, and I know 
+      one of its inputs in the 
 - [ ] add more examples of non-trivial algorithms that can be turned adaptive.
+- [ ] build a JS framework around this (jk).
 
 ## Open Quesions
 
@@ -252,9 +277,6 @@ See examples/ directory for non-trivial adaptive algorithm examples.
 - Are the runtime performance and memory consumption of this acceptable?
 - What runtime checks should be added to get back some of the guarantees that
   the Haskell implentation had using monads?
-- API design needs work
-  - Should Adaptive be global and not explicitly invoked?
-  - Can Modifable/Changle distinction be removed? It is awkward to use modToC.
 - what happens when adaptable computations throw.
 
 ## Developing
