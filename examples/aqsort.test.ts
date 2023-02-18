@@ -59,16 +59,18 @@ test('Adaptive quick sort does adapt to changes', () => {
       tail: a.newMod(constant({value: 3, tail: a.newMod(constant(null))})),
     })
   ) as IncrList<number>;
+  // initial list is 2, 1, 3
   const list = a.newMod(constant({value: 2, tail: mid})) as IncrList<number>;
   const sortedList = aqsort(a, list);
 
-  // change the original list.
+  // change the original list to 2, 5
   a.change(mid, {
     value: 5,
     tail: a.newMod(constant(null)) as IncrList<number>,
   });
   a.propagate();
 
+  // TODO: this is currently broken returning 1, not 2.
   expect(sortedList.get()!.value).toBe(2);
   expect(sortedList.get()!.tail.get()!.value).toBe(5);
 });

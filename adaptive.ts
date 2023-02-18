@@ -44,10 +44,13 @@ export class Adaptive {
       // TODO: add pluggable comparison check.
       if (!m.firstWrite && m.get() === newVal) return;
       m.unsafeSet(newVal);
+      if (m.firstWrite) {
+        m.firstWrite = false;
+        return;
+      }
       this.insertPQ(m.edges);
       m.edges = [];
       this.currentTime = now;
-      m.firstWrite = false;
     };
     const m = new Modifiable(write);
     ch(write);

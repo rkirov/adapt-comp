@@ -13,7 +13,6 @@
     "@types/jest": "^24.9.1",
     "jest": "^24.9.0",
     "prettier": "2.0.5",
-    "typescript": "^3.9.9"
-  },
-  "dependencies": {}
+    "typescript": "^4.9.5"
+  }
 }
